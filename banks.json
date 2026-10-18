@@ -1,0 +1,90 @@
+{
+  "fetchedNote": "Sourced 2026-10-18, bank-published figures only — no broker/remittance-fintech sites. 'official' = the bank states this number directly. 'computed' = derived by comparing the bank's own dated forex-card-rate PDF against the interbank rate on that SAME date (frankfurter.dev), not written as a bps figure anywhere by the bank itself. 'partial' = bank-published but narrow in scope. 'unavailable' = genuinely not found, not estimated.",
+  "senderBanks": [
+    {
+      "name": "Deutsche Bank",
+      "outwardFeeEur": 13.05,
+      "feeStatus": "official",
+      "feeBreakdown": "€10.00 minimum (data-transmission transfer) + 0.15% commission (‰ 1.5) + €1.55 SWIFT message fee, SHA case",
+      "ourSurchargeEur": 25.00,
+      "ourSurchargeStatus": "official",
+      "ourSurchargeBreakdown": "Fremdspesenpauschale (OUR) — flat third-party-expenses fee Deutsche Bank itself charges when the sender selects OUR",
+      "source": "https://corporates.db.com/files/documents/company/003-32001-70-DBDE-2587-I-260324-1.pdf",
+      "note": "Deutsche Bank's own official price list (business/corporate accounts, German-language PDF dated March 2026). Private/retail terms may differ — not independently confirmed from a Deutsche Bank retail source. No daily rate sheet applies here: this is a transfer fee schedule, not a currency conversion rate."
+    },
+    {
+      "name": "Sparkasse",
+      "outwardFeeEur": 30.00,
+      "feeStatus": "partial",
+      "feeBreakdown": "€30 minimum currency-conversion commission (0.025%, min €30) — one regional branch's own published figure, not national",
+      "source": "https://www.spk-rastatt-gernsbach.de/content/dam/myif/sk-rastatt-gernsbach/work/dokumente/pdf/preise-leistungen/Kundeninformation%20zu%20Preisen%20im%20Auslandsgesch%C3%A4ft%20ab%2001.01.2023.pdf",
+      "note": "“Sparkasse” is not one bank — roughly 350 independently operated regional savings banks, each with its own price list. This is Sparkasse Rastatt-Gernsbach's own published figure (effective 2023-01-01), used as the only concrete bank-published example found, not a national fee."
+    },
+    {
+      "name": "Commerzbank",
+      "outwardFeeEur": null,
+      "feeStatus": "unavailable",
+      "source": null,
+      "note": "No current fee figure from Commerzbank's own price list was retrievable. This is a sender-side transfer fee, not a currency conversion rate, so the daily forex-rate-PDF approach that fixed the Indian receiver banks' data doesn't apply here."
+    },
+    {
+      "name": "ING",
+      "outwardFeeEur": null,
+      "feeStatus": "unavailable",
+      "source": null,
+      "note": "No current fee figure from ING's own price list was retrievable. Same as Commerzbank — a transfer fee schedule, not a daily rate sheet."
+    }
+  ],
+  "receiverBanks": [
+    {
+      "name": "ICICI Bank",
+      "inwardFeeInr": null,
+      "feeStatus": "unavailable",
+      "fxMarkupBps": 221,
+      "fxStatus": "computed",
+      "fxAsOf": "2026-10-16",
+      "fxDetail": "ICICI's own live forex-card-rate page: EUR TT Buying ₹104.50 (as displayed 2026-10-16). Interbank EUR/INR that same date (frankfurter.dev): 106.864. Spread = (106.864−104.50)/106.864 ≈ 221bps.",
+      "source": "https://www.icici.bank.in/corporate/global-markets/forex/forex-card-rate",
+      "note": "FX markup is computed, not bank-stated as a bps figure — see fxDetail. No inward handling fee was shown on this page, so that field stays unavailable."
+    },
+    {
+      "name": "SBI",
+      "inwardFeeInr": 59,
+      "feeStatus": "official",
+      "feeBreakdown": "₹50 + 18% GST — SBI's own published retail cross-border remittance charges",
+      "fxMarkupBps": null,
+      "fxStatus": "unavailable",
+      "source": "https://sbi.bank.in/documents/16012/1400784/FOREX_CARD_RATES.pdf",
+      "note": "SBI's own forex card rate PDF (dated 17-10-2026, EUR TT Buy ₹105.30) is explicit that these card rates apply only to transactions between ₹10 lakh and ₹20 lakh — ‘for transactions of value less than Rs. 10 lakhs, please contact the nearest branch.’ Our €1000 (~₹1 lakh) scenario is below that floor, so SBI's own document says this rate doesn't apply here; the markup stays unavailable rather than borrowed from the wrong bracket."
+    },
+    {
+      "name": "HDFC Bank",
+      "inwardFeeInr": 0,
+      "feeStatus": "official",
+      "fxMarkupBps": 233,
+      "fxStatus": "computed",
+      "fxAsOf": "2026-10-16",
+      "fxDetail": "HDFC's own Treasury Forex Card Rates PDF: EUR T.T. Buying (Inw Rem) ₹104.38 (sheet dated 16/10/2026 12:22 PM). Interbank EUR/INR that same date (frankfurter.dev): 106.864. Spread = (106.864−104.38)/106.864 ≈ 233bps. The PDF itself states these card rates apply to retail transactions up to ₹20 lakh equivalent — our €1000 scenario qualifies.",
+      "source": "https://www.hdfc.bank.in/content/dam/hdfcbankpws/in/en/personal-banking/discover-products/interest-rates/hdfc-bank-treasury-forex-card-rates.pdf",
+      "note": "Inward fee ₹0 and the TT Buying rate are both HDFC's own published figures; the bps spread is computed from them (see fxDetail), not stated by HDFC as a markup percentage."
+    },
+    {
+      "name": "IDFC First Bank",
+      "inwardFeeInr": 0,
+      "feeStatus": "official",
+      "fxMarkupBps": null,
+      "fxStatus": "unavailable",
+      "source": "https://www.idfcfirstbank.com/personal-banking/forex/inward-remittance",
+      "note": "IDFC First's own retail page states no processing fee for inward remittance. No current official forex-card-rate sheet was found for IDFC First despite a renewed search — its own site surfaced only forex-risk-management products (forwards/options), not a retail rate table, so the markup stays unavailable."
+    },
+    {
+      "name": "Yes Bank",
+      "inwardFeeInr": null,
+      "feeStatus": "unavailable",
+      "fxMarkupBps": null,
+      "fxStatus": "unavailable",
+      "source": null,
+      "note": "Yes Bank is reported (third-party) to publish a daily 'Forex Rates for NRI Client' PDF, but no verified current link was found despite a renewed, targeted search — only a stale (~2 months old) third-party-quoted figure turned up, which this dataset deliberately excludes. Both fee and markup stay unavailable."
+    }
+  ]
+}

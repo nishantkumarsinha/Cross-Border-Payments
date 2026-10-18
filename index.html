@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EUR to INR — Rate Comparison (MVP spike)</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, sans-serif; background: #f6f2e7; color: #1e2530; max-width: 860px; margin: 40px auto; padding: 0 20px; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  h2 { font-size: 1rem; margin: 28px 0 10px; }
+  .sub { color: #5b6270; font-size: 0.9rem; margin-bottom: 24px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: #fff; min-width: 480px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #e4dcc6; font-size: 0.95rem; white-space: nowrap; }
+  td.num, th.num { font-variant-numeric: tabular-nums; }
+  th { font-size: 0.72rem; text-transform: uppercase; color: #8a8f98; }
+  tr.best { background: #eef7f0; font-weight: 600; }
+  .badge { background: #4b7a5e; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; margin-left: 6px; }
+  .note { color: #8a8f98; font-size: 0.8rem; margin-top: 16px; }
+  .savings { margin-top: 16px; font-size: 0.95rem; }
+  .method { background: #ede6d3; border-left: 2px solid #a85f2b; padding: 12px 16px; margin-top: 12px; font-size: 0.9rem; border-radius: 0 4px 4px 0; }
+  .method p { margin: 0 0 8px; }
+  .method p:last-child { margin-bottom: 0; }
+  code { font-family: monospace; background: #e4dcc6; padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .card { background: #fff; border: 1px solid #e4dcc6; border-radius: 6px; padding: 14px 16px; }
+  .card.best { border-color: #4b7a5e; box-shadow: 0 0 0 1px #4b7a5e inset; }
+  .card.dynamic { border-color: #a85f2b; }
+  .card.blocked { opacity: 0.85; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .card-head .name { font-weight: 600; }
+  .model-tag { color: #8a8f98; font-size: 0.78rem; margin-bottom: 10px; }
+  .ledger { width: 100%; font-size: 0.88rem; }
+  .ledger td { padding: 3px 0; border-bottom: none; white-space: normal; }
+  .ledger td.amt { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ledger tr.subtotal td { border-top: 1px solid #e4dcc6; padding-top: 6px; font-weight: 600; }
+  .ledger tr.final td { font-weight: 700; color: #a85f2b; }
+  .neg { color: #a13b2e; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; background: #fff; border: 1px solid #e4dcc6; border-radius: 6px; padding: 14px 16px; margin-bottom: 4px; }
+  .controls label { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: #5b6270; }
+  .controls select { font-size: 0.9rem; padding: 5px 6px; border: 1px solid #d9d0ba; border-radius: 4px; background: #fff; color: #1e2530; }
+
+  .ref-table td, .ref-table th { font-size: 0.85rem; white-space: normal; }
+  .ref-table tr.note-row td { padding-top: 0; padding-bottom: 10px; font-size: 0.78rem; color: #8a8f98; border-bottom: 1px solid #e4dcc6; }
+  .matrix td, .matrix th { font-size: 0.82rem; text-align: right; }
+  .matrix th:first-child, .matrix td:first-child { text-align: left; }
+  .matrix td.dash { color: #c9c0a9; }
+
+  .stat { display: inline-block; font-size: 0.68rem; letter-spacing: 0.03em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-right: 6px; }
+  .stat-official { background: #eef7f0; color: #3d6b4f; }
+  .stat-computed { background: #eaf1f7; color: #2f5d80; }
+  .stat-partial { background: #fdf3e2; color: #93701c; }
+  .stat-unavailable { background: #f2eee2; color: #8a8f98; }
+  .src-link { font-size: 0.78rem; }
+  .sources-list { font-size: 0.85rem; padding-left: 20px; }
+  .sources-list li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+  <h1>EUR &rarr; INR comparison (illustrative, offline spike)</h1>
+  <div class="sub" id="status">Fetching live interbank rate…</div>
+
+  <div class="table-wrap">
+    <table id="results">
+      <thead><tr><th>Provider</th><th class="num">You get (INR)</th><th class="num">Effective rate</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="savings" id="savings"></div>
+
+  <h2>Detailed cost breakdown, per provider</h2>
+  <div class="sub">Wise, Revolut, and the "Freelance Remit App" below remain illustrative placeholders, not researched figures — unlike the bank data further down, these were never looked up. Each still uses its own real costing shape (flat fee, percentage fee, tiered fee, FX spread) rather than one shared formula.</div>
+  <div class="cards" id="cards"></div>
+
+  <h2>Bank wire: pick a sender &amp; receiver bank</h2>
+  <div class="sub">A bank wire's cost isn't owned by one bank — it passes through a sender bank, possibly an intermediary/correspondent bank, and a receiver bank. Pick a pair below to see how the combination changes what arrives, using only each bank's own published figures.</div>
+  <div class="controls">
+    <label>Sender bank (Germany)
+      <select id="senderSelect"></select>
+    </label>
+    <label>Receiver bank (India)
+      <select id="receiverSelect"></select>
+    </label>
+    <label>Fee option (who pays the intermediary)
+      <select id="feeOptionSelect">
+        <option value="SHA">SHA — shared, default, cheaper to send</option>
+        <option value="OUR">OUR — sender pays all, receiver gets more</option>
+      </select>
+    </label>
+  </div>
+
+  <h2>Reference: what each bank itself publishes</h2>
+  <div class="sub">No broker or remittance-fintech site (Skydo, Remitbee, Wise, etc.) was used for any figure below — only each bank's own fee page or PDF. Where a bank doesn't publish a figure, it's marked unavailable, not estimated.</div>
+  <div class="table-wrap">
+    <table class="ref-table">
+      <thead><tr><th>Sender bank</th><th class="num">Outward fee</th><th>Source</th></tr></thead>
+      <tbody id="senderRefRows"></tbody>
+    </table>
+  </div>
+  <div class="table-wrap" style="margin-top:10px;">
+    <table class="ref-table">
+      <thead><tr><th>Receiver bank</th><th class="num">Inward fee</th><th class="num">FX markup</th><th>Source</th></tr></thead>
+      <tbody id="receiverRefRows"></tbody>
+    </table>
+  </div>
+
+  <h2>Corner case: does the sender/receiver pair actually matter?</h2>
+  <div class="sub" id="matrixSub"></div>
+  <div class="table-wrap">
+    <table class="matrix" id="matrixTable"></table>
+  </div>
+  <div class="method" id="bankMethod"></div>
+
+  <h2>How "best rate" is decided</h2>
+  <div class="method" id="method"></div>
+
+  <h2>Sources</h2>
+  <ol class="sources-list" id="sourcesList"></ol>
+
+  <div class="note">Amount hardcoded at €1000 for this spike. Wise/Revolut/Freelance Remit App figures are illustrative placeholders. All bank figures are loaded live from <code>banks.json</code> and sourced from each bank's own page/PDF — see Sources above. Interbank (mid-market) rate is live from frankfurter.dev.</div>
+
+<script>
+const AMOUNT_EUR = 1000;
+const fmtEUR = n => (n < 0 ? "−€" : "€") + Math.abs(n).toFixed(2);
+const fmtINR = n => "₹" + n.toFixed(2);
+let lastRate = null;
+let bankData = null;
+
+// Each fintech provider owns its OWN cost model and its own compute() —
+// illustrative placeholders, never researched (see §2's sub-heading note).
+const providers = [
+  {
+    name: "Wise",
+    modelLabel: "Percentage fee only — no FX markup",
+    compute(rate) {
+      const fee = AMOUNT_EUR * 0.0045;
+      const netSend = AMOUNT_EUR - fee;
+      const effectiveRate = rate;
+      return {
+        lines: [
+          { label: "Send amount", amt: AMOUNT_EUR },
+          { label: "Transfer fee (0.45% of send amount)", amt: -fee },
+          { label: "Net amount converted", amt: netSend, subtotal: true },
+          { label: "FX rate applied", note: `${effectiveRate.toFixed(4)} (= interbank rate, no markup)` },
+        ],
+        netSend, effectiveRate, inrReceived: netSend * effectiveRate
+      };
+    }
+  },
+  {
+    name: "Revolut",
+    modelLabel: "Zero fee — cost taken entirely as FX rate markup",
+    compute(rate) {
+      const spreadBps = 20;
+      const effectiveRate = rate * (1 - spreadBps / 10000);
+      const netSend = AMOUNT_EUR;
+      return {
+        lines: [
+          { label: "Send amount", amt: AMOUNT_EUR },
+          { label: "Transfer fee", amt: 0 },
+          { label: "Net amount converted", amt: netSend, subtotal: true },
+          { label: `FX markup: ${spreadBps} bps below interbank rate`, note: `${rate.toFixed(4)} → ${effectiveRate.toFixed(4)}` },
+        ],
+        netSend, effectiveRate, inrReceived: netSend * effectiveRate
+      };
+    }
+  },
+  {
+    name: "Freelance Remit App",
+    modelLabel: "Tiered percentage fee (rate depends on amount sent)",
+    compute(rate) {
+      let feePct, tierLabel;
+      if (AMOUNT_EUR <= 500)      { feePct = 0.010; tierLabel = "≤€500 tier → 1.00%"; }
+      else if (AMOUNT_EUR <= 2000){ feePct = 0.005; tierLabel = "€500–€2,000 tier → 0.50%"; }
+      else                        { feePct = 0.003; tierLabel = ">€2,000 tier → 0.30%"; }
+      const fee = AMOUNT_EUR * feePct;
+      const netSend = AMOUNT_EUR - fee;
+      const effectiveRate = rate;
+      return {
+        lines: [
+          { label: "Send amount", amt: AMOUNT_EUR },
+          { label: `Tiered fee (${tierLabel})`, amt: -fee },
+          { label: "Net amount converted", amt: netSend, subtotal: true },
+          { label: "FX rate applied", note: `${effectiveRate.toFixed(4)} (= interbank rate, no markup)` },
+        ],
+        netSend, effectiveRate, inrReceived: netSend * effectiveRate
+      };
+    }
+  },
+];
+
+const STATUS_LABEL = { official: "Official", computed: "Computed (official inputs)", partial: "Bank-published (partial)", unavailable: "Unavailable" };
+function statTag(status) { return `<span class="stat stat-${status}">${STATUS_LABEL[status] || status}</span>`; }
+
+function selectedSender()   { return bankData.senderBanks[document.getElementById("senderSelect").selectedIndex]; }
+function selectedReceiver() { return bankData.receiverBanks[document.getElementById("receiverSelect").selectedIndex]; }
+function selectedFeeOption(){ return document.getElementById("feeOptionSelect").value; }
+
+// Returns null for inrReceived (not a fabricated number) whenever a
+// required bank-published figure is missing — the whole point of this
+// section is to never fill a gap with a guess.
+function computeBankWire(rate, sender, receiver, feeOption) {
+  const lines = [{ label: "Send amount", amt: AMOUNT_EUR }];
+  let netSend = AMOUNT_EUR;
+  let blocked = [];
+
+  if (sender.feeStatus === "unavailable") {
+    lines.push({ label: `${sender.name} outward fee`, note: "not published by this bank — unavailable" });
+    blocked.push(`${sender.name} doesn't publish an outward transfer fee`);
+  } else {
+    netSend -= sender.outwardFeeEur;
+    lines.push({ label: `${sender.name} outward fee`, amt: -sender.outwardFeeEur });
+    if (feeOption === "OUR" && sender.ourSurchargeStatus === "official") {
+      lines.push({ label: `${sender.name} OUR surcharge (sender absorbs intermediary cost)`, note: `${fmtEUR(-sender.ourSurchargeEur)} — charged to sender, doesn't reduce receiver's net` });
+    } else if (feeOption === "SHA") {
+      lines.push({ label: "Intermediary/correspondent deduction (SHA)", note: "not modeled — no bank-published per-pair routing fee used here" });
+    }
+  }
+
+  lines.push({ label: "Net amount converted", amt: netSend, subtotal: true });
+
+  let effectiveRate = null;
+  if (receiver.fxStatus === "unavailable") {
+    lines.push({ label: `${receiver.name} FX markup`, note: "not published by this bank — unavailable" });
+    blocked.push(`${receiver.name} doesn't publish its FX conversion margin`);
+  } else {
+    effectiveRate = rate * (1 - receiver.fxMarkupBps / 10000);
+    const basis = receiver.fxStatus === "computed" ? ` (computed vs interbank rate as of ${receiver.fxAsOf}, not bank-stated as bps)` : "";
+    lines.push({ label: `${receiver.name} FX markup: ${receiver.fxMarkupBps} bps below interbank rate${basis}`, note: `${rate.toFixed(4)} → ${effectiveRate.toFixed(4)}` });
+  }
+
+  if (receiver.feeStatus === "unavailable") {
+    lines.push({ label: `${receiver.name} inward handling fee`, note: "not published by this bank — unavailable" });
+    blocked.push(`${receiver.name} doesn't publish an inward handling fee`);
+  } else if (receiver.inwardFeeInr > 0) {
+    lines.push({ label: `${receiver.name} inward handling fee`, inrAmt: -receiver.inwardFeeInr });
+  } else {
+    lines.push({ label: `${receiver.name} inward handling fee`, note: "₹0 (bank's own published figure)" });
+  }
+
+  if (blocked.length > 0) {
+    return { netSend, effectiveRate, inrReceived: null, blocked, lines };
+  }
+  const grossInr = netSend * effectiveRate;
+  const inrReceived = grossInr - (receiver.inwardFeeInr || 0);
+  return { netSend, effectiveRate, inrReceived, blocked: [], lines };
+}
+
+function computeResults(rate) {
+  const fintech = providers.map(p => ({ name: p.name, modelLabel: p.modelLabel, dynamic: false, ...p.compute(rate) }));
+  const sender = selectedSender(), receiver = selectedReceiver(), feeOption = selectedFeeOption();
+  const wire = computeBankWire(rate, sender, receiver, feeOption);
+  fintech.push({
+    name: `${sender.name} → ${receiver.name} (wire, ${feeOption})`,
+    modelLabel: wire.blocked.length > 0
+      ? "Bank wire — not computable from published data"
+      : `Sender fee + ${feeOption === "SHA" ? "intermediary deduction" : "sender-absorbed intermediary fee"} + receiver FX markup${receiver.inwardFeeInr > 0 ? " + inward fee" : ""}`,
+    dynamic: true,
+    ...wire
+  });
+  return fintech;
+}
+
+function renderCard(r, isBest) {
+  const rows = r.lines.map(l => {
+    if (l.note) return `<tr><td>${l.label}</td><td class="amt">${l.note}</td></tr>`;
+    const cls = l.subtotal ? "subtotal" : "";
+    if (l.inrAmt !== undefined) {
+      return `<tr class="${cls}"><td>${l.label}</td><td class="amt ${l.inrAmt < 0 ? 'neg' : ''}">${fmtINR(l.inrAmt)}</td></tr>`;
+    }
+    return `<tr class="${cls}"><td>${l.label}</td><td class="amt ${l.amt < 0 ? 'neg' : ''}">${fmtEUR(l.amt)}</td></tr>`;
+  }).join("");
+
+  const finalCell = r.inrReceived === null
+    ? `Not computable — ${r.blocked.join("; ")}`
+    : fmtINR(r.inrReceived);
+
+  return `
+    <div class="card ${isBest ? 'best' : ''} ${r.dynamic ? 'dynamic' : ''} ${r.inrReceived === null ? 'blocked' : ''}">
+      <div class="card-head">
+        <span class="name">${r.name}${isBest ? '<span class="badge">BEST</span>' : ''}</span>
+        <span>${r.inrReceived === null ? '—' : fmtINR(r.inrReceived)}</span>
+      </div>
+      <div class="model-tag">Costing model: ${r.modelLabel}</div>
+      <table class="ledger">
+        ${rows}
+        <tr class="final"><td>Final: INR received</td><td class="amt">${finalCell}</td></tr>
+      </table>
+    </div>`;
+}
+
+function renderRefTables() {
+  document.getElementById("senderRefRows").innerHTML = bankData.senderBanks.map(b => `
+    <tr>
+      <td>${b.name}</td>
+      <td class="num">${statTag(b.feeStatus)}${b.feeStatus === "unavailable" ? "" : fmtEUR(-b.outwardFeeEur)}</td>
+      <td>${b.source ? `<a class="src-link" href="${b.source}" target="_blank" rel="noopener">source</a>` : "—"}</td>
+    </tr>
+    <tr class="note-row"><td colspan="3">${b.note}</td></tr>`).join("");
+
+  document.getElementById("receiverRefRows").innerHTML = bankData.receiverBanks.map(b => `
+    <tr>
+      <td>${b.name}</td>
+      <td class="num">${statTag(b.feeStatus)}${b.feeStatus === "unavailable" ? "" : (b.inwardFeeInr > 0 ? fmtINR(-b.inwardFeeInr) : "₹0")}</td>
+      <td class="num">${statTag(b.fxStatus)}${b.fxStatus === "unavailable" ? "" : b.fxMarkupBps + " bps"}</td>
+      <td>${b.source ? `<a class="src-link" href="${b.source}" target="_blank" rel="noopener">source</a>` : "—"}</td>
+    </tr>
+    <tr class="note-row"><td colspan="4">${b.note}${b.fxDetail ? ` <em>Method: ${b.fxDetail}</em>` : ""}</td></tr>`).join("");
+}
+
+function renderSources() {
+  const entries = [...bankData.senderBanks, ...bankData.receiverBanks].filter(b => b.source);
+  document.getElementById("sourcesList").innerHTML = entries.map(b =>
+    `<li><strong>${b.name}:</strong> <a href="${b.source}" target="_blank" rel="noopener">${b.source}</a></li>`).join("")
+    || "<li>No bank-published sources found for the current selection.</li>";
+}
+
+function renderMatrix(rate) {
+  const feeOption = selectedFeeOption();
+  const senders = bankData.senderBanks, receivers = bankData.receiverBanks;
+  const cells = senders.map(s => receivers.map(r => computeBankWire(rate, s, r, feeOption).inrReceived));
+  const flat = cells.flat().filter(v => v !== null);
+
+  const head = `<tr><th>Sender \\ Receiver</th>${receivers.map(r => `<th class="num">${r.name}</th>`).join("")}</tr>`;
+  const rows = senders.map((s, i) => {
+    const tds = cells[i].map(v => v === null
+      ? `<td class="dash">—</td>`
+      : `<td class="${v === Math.max(...flat) ? 'maxcell' : v === Math.min(...flat) ? 'mincell' : ''}">${fmtINR(v)}</td>`
+    ).join("");
+    return `<tr><td>${s.name}</td>${tds}</tr>`;
+  }).join("");
+
+  document.getElementById("matrixTable").innerHTML = `<thead>${head}</thead><tbody>${rows}</tbody>`;
+  document.getElementById("matrixSub").textContent =
+    `All ${senders.length * receivers.length} combinations at the current fee option, using only bank-published figures — "—" means at least one side doesn't publish what's needed to compute it.`;
+
+  if (flat.length === 0) {
+    document.getElementById("bankMethod").innerHTML = `
+      <p><strong>None of these 20 pairs can be fully computed from bank-published data.</strong> Every one of the 5 Indian receiver banks checked here is missing an officially published FX conversion margin — the single biggest cost component on an international transfer. Flat fees (SBI's ₹50+GST, HDFC's and IDFC First's ₹0) are published; the rate markup applied on top never is.</p>
+      <p><strong>This is itself the finding, not a bug in the model.</strong> It's exactly the opacity this whole comparison tool exists to cut through — banks disclose the fee they're comfortable publishing and keep the FX margin, usually the larger cost, off any public page. Closing this gap for real would need either a live quote per bank (API, if one exists) or manually logged real transaction statements, not another web search.</p>`;
+    return;
+  }
+
+  const max = Math.max(...flat), min = Math.min(...flat);
+  let bestPair, worstPair;
+  senders.forEach((s, i) => receivers.forEach((r, j) => {
+    const v = cells[i][j];
+    if (v === max) bestPair = { sender: s, receiver: r };
+    if (v === min) worstPair = { sender: s, receiver: r };
+  }));
+
+  document.getElementById("bankMethod").innerHTML = `
+    <p><strong>Where it's computable, the pair matters.</strong> Under ${feeOption}, ${bestPair.sender.name} → ${bestPair.receiver.name} delivers ${fmtINR(max)}, while ${worstPair.sender.name} → ${worstPair.receiver.name} delivers ${fmtINR(min)} — a gap of ${fmtINR(max - min)} on the same €${AMOUNT_EUR} and interbank rate. But most of the matrix above is "—", not a number, because most of these banks don't publish an FX markup at all (see the finding below the matrix).</p>
+  `;
+}
+
+function renderAll(rate, fetchedAt) {
+  const results = computeResults(rate);
+  const ranked = results.filter(r => r.inrReceived !== null).sort((a, b) => b.inrReceived - a.inrReceived);
+  const unranked = results.filter(r => r.inrReceived === null);
+  const ordered = [...ranked, ...unranked];
+  const best = ranked[0], worst = ranked[ranked.length - 1];
+
+  document.getElementById("rows").innerHTML = ordered.map((r, i) => `
+    <tr class="${r === best ? 'best' : ''}">
+      <td>${r.name}${r === best ? '<span class="badge">BEST</span>' : ''}</td>
+      <td class="num">${r.inrReceived === null ? '—' : fmtINR(r.inrReceived)}</td>
+      <td class="num">${r.effectiveRate === null ? '—' : r.effectiveRate.toFixed(4)}</td>
+    </tr>`).join("");
+
+  document.getElementById("cards").innerHTML =
+    ordered.map(r => renderCard(r, r === best)).join("");
+
+  document.getElementById("savings").textContent = best && worst
+    ? `Best (${best.name}) saves ${fmtINR(best.inrReceived - worst.inrReceived)} vs. worst computable (${worst.name}) on €${AMOUNT_EUR}. ${unranked.length} entr${unranked.length === 1 ? 'y is' : 'ies are'} excluded from ranking — see its card for what's missing.`
+    : "";
+
+  if (fetchedAt) {
+    document.getElementById("status").textContent =
+      `Interbank (mid-market) rate: ${rate.toFixed(4)} INR/EUR — fetched ${fetchedAt} from frankfurter.dev (sourced from ECB reference rates)`;
+  }
+
+  document.getElementById("method").innerHTML = `
+    <p><strong>Everyone starts from the same number:</strong> the live interbank rate fetched above (<code>${rate.toFixed(4)}</code> INR/EUR). Every entry's card shows its own path from that single rate down to the INR you'd actually receive.</p>
+    <p><strong>Ranking rule:</strong> sort by final INR received, computed per entry's own model. An entry is excluded from ranking entirely (not scored as 0 or ignored silently) when a required figure isn't publicly available — see the bank-wire section below for why that happens often with real banks.</p>
+    <p><strong>Right now:</strong> ${best ? `${best.name} wins (${fmtINR(best.inrReceived)})` : "no entry has a fully computable result"}.</p>
+  `;
+
+  renderMatrix(rate);
+}
+
+function populateControls() {
+  document.getElementById("senderSelect").innerHTML = bankData.senderBanks.map(b => `<option>${b.name}</option>`).join("");
+  document.getElementById("receiverSelect").innerHTML = bankData.receiverBanks.map(b => `<option>${b.name}</option>`).join("");
+  ["senderSelect", "receiverSelect", "feeOptionSelect"].forEach(id =>
+    document.getElementById(id).addEventListener("change", () => {
+      if (lastRate !== null) renderAll(lastRate, null);
+    }));
+}
+
+Promise.all([
+  fetch("https://api.frankfurter.dev/v1/latest?from=EUR&to=INR").then(r => r.json()),
+  fetch("banks.json").then(r => r.json()),
+]).then(([fx, banks]) => {
+  bankData = banks;
+  lastRate = fx.rates.INR;
+  renderRefTables();
+  renderSources();
+  populateControls();
+  renderAll(lastRate, new Date().toLocaleTimeString());
+}).catch(err => {
+  document.getElementById("status").textContent = "Failed to load live rate or bank data: " + err.message;
+});
+</script>
+</body>
+</html>
