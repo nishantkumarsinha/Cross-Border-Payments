@@ -6,6 +6,8 @@ import type { CSSProperties } from "react";
 interface CompareResult {
   provider_id: string;
   provenance: string;
+  fetched_at: string;
+  stale: boolean;
   excluded_reason: string | null;
   amount_received: string | null;
   effective_rate: number | null;
@@ -105,6 +107,7 @@ export default function Page() {
               <tr>
                 <th style={th}>Provider</th>
                 <th style={th}>Source</th>
+                <th style={th}>Last fetched</th>
                 <th style={th}>You get (INR)</th>
                 <th style={th}>Effective rate</th>
               </tr>
@@ -114,6 +117,10 @@ export default function Page() {
                 <tr key={r.provider_id}>
                   <td style={td}>{r.provider_id.toUpperCase()}</td>
                   <td style={td}>{r.provenance}</td>
+                  <td style={td}>
+                    {new Date(r.fetched_at).toLocaleString()}
+                    {r.stale ? " (stale)" : ""}
+                  </td>
                   <td style={td}>
                     {r.amount_received !== null ? `₹${r.amount_received}` : r.excluded_reason ?? "unavailable"}
                   </td>

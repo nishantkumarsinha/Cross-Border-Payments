@@ -15,8 +15,13 @@ export interface ProviderQuoteFailure {
   error: string;
 }
 
+export interface ProviderQuoteResult {
+  quote: Quote;
+  stale: boolean;
+}
+
 export interface ProviderQuotesResult {
-  quotes: Quote[];
+  quotes: ProviderQuoteResult[];
   failures: ProviderQuoteFailure[];
 }
 
@@ -32,14 +37,14 @@ export async function getAllProviderQuotes(
   },
   sources: PdfSource[] = [HDFC_SOURCE, SBI_SOURCE]
 ): Promise<ProviderQuotesResult> {
-  const quotes: Quote[] = [];
+  const quotes: ProviderQuoteResult[] = [];
   const failures: ProviderQuoteFailure[] = [];
 
   await Promise.all(
     sources.map(async (source) => {
       const cached = cache.get(source.bankId);
       if (cached && deps.nowMs() - cached.fetchedAtMs < deps.cacheTtlMs) {
-        quotes.push(cached.quote);
+        quotes.push({ quote: cached.quote, stale: false });
         return;
       }
 
@@ -50,8 +55,16 @@ export async function getAllProviderQuotes(
           nowIso: deps.nowIso,
         });
         cache.set(source.bankId, { quote, fetchedAtMs: deps.nowMs() });
-        quotes.push(quote);
+        quotes.push({ quote, stale: false });
       } catch (err) {
+        // FR-4 / PRD risk table: fall back to the last-known-good quote,
+        // marked stale, rather than reporting a failure when a perfectly
+        // usable (if old) cached quote exists — mirrors getBenchmarkRate's
+        // existing fallback behavior.
+        if (cached) {
+          quotes.push({ quote: cached.quote, stale: true });
+          return;
+        }
         failures.push({
           bankId: source.bankId,
           error: err instanceof Error ? err.message : String(err),

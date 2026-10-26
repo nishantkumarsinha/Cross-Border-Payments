@@ -27,10 +27,8 @@ function makeDeps(overrides: Partial<Parameters<typeof getAllProviderQuotes>[2]>
 }
 
 describe("getAllProviderQuotes", () => {
-  it("fetches both HDFC and SBI quotes successfully", async () => {
+  it("fetches both HDFC and SBI quotes successfully, neither marked stale", async () => {
     const cache: QuoteCacheMap = new Map();
-    // extractText has no way to know which bank it's extracting for from the
-    // signature alone, so route by call order: HDFC is requested first.
     let callCount = 0;
     const deps = makeDeps({
       extractText: async () => {
@@ -43,7 +41,8 @@ describe("getAllProviderQuotes", () => {
 
     expect(result.failures).toEqual([]);
     expect(result.quotes).toHaveLength(2);
-    expect(result.quotes.map((q) => q.provider_id).sort()).toEqual(["hdfc", "sbi"]);
+    expect(result.quotes.map((q) => q.quote.provider_id).sort()).toEqual(["hdfc", "sbi"]);
+    expect(result.quotes.every((q) => q.stale === false)).toBe(true);
   });
 
   it("isolates a failure to one provider — the other still succeeds (FR-7)", async () => {
@@ -60,10 +59,10 @@ describe("getAllProviderQuotes", () => {
 
     expect(result.failures).toEqual([{ bankId: "hdfc", error: "network down" }]);
     expect(result.quotes).toHaveLength(1);
-    expect(result.quotes[0].provider_id).toBe("sbi");
+    expect(result.quotes[0].quote.provider_id).toBe("sbi");
   });
 
-  it("serves a cache hit without calling fetchPdf again within the TTL", async () => {
+  it("serves a fresh cache hit (not stale) without calling fetchPdf again within the TTL", async () => {
     const cache: QuoteCacheMap = new Map();
     const fetchPdf = jest.fn(async () => new ArrayBuffer(0));
     const deps = makeDeps({
@@ -73,9 +72,15 @@ describe("getAllProviderQuotes", () => {
     });
 
     await getAllProviderQuotes(BENCHMARK_RATE, cache, deps, [HDFC_SOURCE]);
-    await getAllProviderQuotes(BENCHMARK_RATE, cache, { ...deps, nowMs: () => 1000 + 60_000 }, [HDFC_SOURCE]);
+    const second = await getAllProviderQuotes(
+      BENCHMARK_RATE,
+      cache,
+      { ...deps, nowMs: () => 1000 + 60_000 },
+      [HDFC_SOURCE]
+    );
 
     expect(fetchPdf).toHaveBeenCalledTimes(1);
+    expect(second.quotes[0].stale).toBe(false);
   });
 
   it("re-fetches once the cache entry's TTL has expired", async () => {
@@ -92,5 +97,50 @@ describe("getAllProviderQuotes", () => {
     await getAllProviderQuotes(BENCHMARK_RATE, cache, { ...deps, nowMs: () => 600_000 }, [HDFC_SOURCE]);
 
     expect(fetchPdf).toHaveBeenCalledTimes(2);
+  });
+
+  // Final review finding (FR-4, PRD risk table): an expired cache entry whose
+  // re-fetch fails must fall back to the last-known-good quote, marked
+  // stale — matching getBenchmarkRate's existing pattern — rather than being
+  // reported as unavailable when a perfectly good (if old) quote exists.
+  it("falls back to the last-known-good quote, marked stale, when a re-fetch fails on an expired entry", async () => {
+    const cache: QuoteCacheMap = new Map();
+    const deps = makeDeps({
+      extractText: async () => HDFC_FIXTURE_TEXT,
+      nowMs: () => 0,
+      cacheTtlMs: 600_000,
+    });
+
+    // Seed a fresh, successful entry first.
+    await getAllProviderQuotes(BENCHMARK_RATE, cache, deps, [HDFC_SOURCE]);
+
+    // Now the entry is expired AND the live fetch fails.
+    const failingDeps = makeDeps({
+      fetchPdf: async () => {
+        throw new Error("network down");
+      },
+      nowMs: () => 600_000,
+      cacheTtlMs: 600_000,
+    });
+    const result = await getAllProviderQuotes(BENCHMARK_RATE, cache, failingDeps, [HDFC_SOURCE]);
+
+    expect(result.failures).toEqual([]);
+    expect(result.quotes).toHaveLength(1);
+    expect(result.quotes[0].quote.provider_id).toBe("hdfc");
+    expect(result.quotes[0].stale).toBe(true);
+  });
+
+  it("still reports a failure when there is no cached entry to fall back to", async () => {
+    const cache: QuoteCacheMap = new Map();
+    const deps = makeDeps({
+      fetchPdf: async () => {
+        throw new Error("network down");
+      },
+    });
+
+    const result = await getAllProviderQuotes(BENCHMARK_RATE, cache, deps, [HDFC_SOURCE]);
+
+    expect(result.quotes).toEqual([]);
+    expect(result.failures).toEqual([{ bankId: "hdfc", error: "network down" }]);
   });
 });

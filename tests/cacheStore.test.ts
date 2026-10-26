@@ -54,4 +54,25 @@ describe("createSqliteCacheStore", () => {
     store.set("a", { n: 2 });
     expect(store.get("a")).toEqual({ n: 2 });
   });
+
+  // Final review finding: the Map this replaced could never throw. A real
+  // backing store can (SQLITE_BUSY, disk I/O errors, a closed handle). A
+  // throwing get()/set() breaks the FR-7 provider-isolation the orchestrators
+  // (lib/providerQuotes.ts, lib/benchmarkRate.ts) were built assuming a cache
+  // never fails — a cache is an optimization, not a dependency that should be
+  // able to take down an otherwise-successful request.
+  it("get() returns undefined instead of throwing when the underlying store fails", () => {
+    const db = openKvDb(":memory:");
+    const store = createSqliteCacheStore<{ n: number }>(db, "test");
+    db.close(); // guarantees a real, not simulated, failure on next use
+    expect(() => store.get("a")).not.toThrow();
+    expect(store.get("a")).toBeUndefined();
+  });
+
+  it("set() does not throw when the underlying store fails", () => {
+    const db = openKvDb(":memory:");
+    const store = createSqliteCacheStore<{ n: number }>(db, "test");
+    db.close();
+    expect(() => store.set("a", { n: 1 })).not.toThrow();
+  });
 });

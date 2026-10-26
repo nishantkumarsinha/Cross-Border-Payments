@@ -7,6 +7,7 @@ import { computeQuoteCost, formatDisplayAmount } from "@/lib/costEngine";
 import type { BenchmarkCacheEntry } from "@/lib/types";
 import { openKvDb } from "@/lib/sqliteKv";
 import { createSqliteCacheStore } from "@/lib/cacheStore";
+import { fetchWithTimeout } from "@/lib/httpUtil";
 
 // Module-level singletons: persist across requests within the same server
 // process, and now also across a process restart — backed by a SQLite file
@@ -18,6 +19,7 @@ const quoteCache = createSqliteCacheStore<QuoteCacheEntry>(db, "quote");
 
 const BENCHMARK_CACHE_TTL_MS = 5 * 60 * 1000; // matches the plan's Task 1 constant
 const QUOTE_CACHE_TTL_MS = 10 * 60 * 1000; // PDFs change at most daily; 10 min just avoids hammering on every request
+const BENCHMARK_FETCH_TIMEOUT_MS = 8000; // a hung upstream shouldn't hold the whole request open for minutes
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -31,7 +33,7 @@ export async function GET(request: Request) {
   let benchmark;
   try {
     benchmark = await getBenchmarkRate("EUR", "INR", benchmarkCache, {
-      fetchFn: fetch,
+      fetchFn: (fetchUrl) => fetchWithTimeout(fetchUrl, BENCHMARK_FETCH_TIMEOUT_MS),
       nowMs: () => Date.now(),
       cacheTtlMs: BENCHMARK_CACHE_TTL_MS,
     });
@@ -47,12 +49,18 @@ export async function GET(request: Request) {
     cacheTtlMs: QUOTE_CACHE_TTL_MS,
   });
 
-  const costed = quotes.map((quote) => ({ quote, cost: computeQuoteCost(quote, benchmark.rate, amount) }));
+  const costed = quotes.map(({ quote, stale }) => ({
+    quote,
+    stale,
+    cost: computeQuoteCost(quote, benchmark.rate, amount),
+  }));
   costed.sort((a, b) => (b.cost.amount_received ?? -Infinity) - (a.cost.amount_received ?? -Infinity));
 
-  const results = costed.map(({ quote, cost }) => ({
+  const results = costed.map(({ quote, stale, cost }) => ({
     provider_id: quote.provider_id,
     provenance: quote.provenance,
+    fetched_at: quote.fetched_at,
+    stale,
     excluded_reason: cost.excluded_reason,
     amount_received: cost.amount_received !== null ? formatDisplayAmount(cost.amount_received) : null,
     effective_rate: cost.effective_rate,

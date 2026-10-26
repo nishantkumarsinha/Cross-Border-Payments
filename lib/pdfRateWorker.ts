@@ -1,5 +1,6 @@
 import { PDFParse } from "pdf-parse";
 import type { Quote } from "./types";
+import { fetchWithTimeout } from "./httpUtil";
 
 export interface PdfSource {
   bankId: string;
@@ -82,8 +83,10 @@ export async function fetchBankQuote(
   };
 }
 
+const PDF_FETCH_TIMEOUT_MS = 8000;
+
 export const httpFetchPdf: PdfFetchLike = async (url) => {
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url, PDF_FETCH_TIMEOUT_MS);
   if (!response.ok) {
     throw new Error(`PDF fetch failed with status ${response.status}`);
   }
