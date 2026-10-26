@@ -10,7 +10,7 @@ export function computeQuoteCost(
   if (amountFromCurrency < amount_tier.min) {
     return {
       provider_id,
-      excluded_reason: `minimum transfer: ${amount_tier.min} ${corridor.from_currency}`,
+      excluded_reason: `minimum transfer: ${formatDisplayAmount(amount_tier.min)} ${corridor.from_currency}`,
       effective_rate: null,
       amount_received: null,
       total_cost_from_currency: null,
@@ -20,7 +20,7 @@ export function computeQuoteCost(
   if (amount_tier.max !== null && amountFromCurrency > amount_tier.max) {
     return {
       provider_id,
-      excluded_reason: `maximum transfer: ${amount_tier.max} ${corridor.from_currency}`,
+      excluded_reason: `maximum transfer: ${formatDisplayAmount(amount_tier.max)} ${corridor.from_currency}`,
       effective_rate: null,
       amount_received: null,
       total_cost_from_currency: null,

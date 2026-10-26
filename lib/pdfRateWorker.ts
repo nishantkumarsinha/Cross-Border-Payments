@@ -54,8 +54,8 @@ export async function fetchBankQuote(
   const text = await deps.extractText(bytes);
   const ttBuyingRateInr = source.parse(text);
 
-  if (ttBuyingRateInr === null) {
-    throw new Error(`could not find a rate row for ${source.bankId}`);
+  if (ttBuyingRateInr === null || !Number.isFinite(ttBuyingRateInr) || ttBuyingRateInr <= 0) {
+    throw new Error(`could not find a valid rate row for ${source.bankId}`);
   }
 
   const fxSpreadBps = ((benchmarkRate - ttBuyingRateInr) / benchmarkRate) * 10000;

@@ -57,6 +57,25 @@ describe("fetchBankQuote", () => {
       fetchBankQuote(HDFC_SOURCE, BENCHMARK_RATE, stubDeps("some unrelated PDF content"))
     ).rejects.toThrow();
   });
+
+  // Final review finding: the Review Focus item for Task 3 says a bad PDF
+  // row "must fail loudly ... rather than silently construct a Quote with a
+  // garbage or NaN rate" — the "row not found" case above only covers a
+  // regex that fails to match at all. A row that MATCHES but captures a
+  // degenerate number (a lone ".", or a literal "0") was never guarded.
+  it("throws when the captured rate is not a finite, positive number (regex matched but captured garbage)", async () => {
+    const malformedHdfcText = "Euro EUR 103.65 111.86 103.79 109.55 . 108.96 104.06 109.28 109.55";
+    await expect(
+      fetchBankQuote(HDFC_SOURCE, BENCHMARK_RATE, stubDeps(malformedHdfcText))
+    ).rejects.toThrow();
+  });
+
+  it("throws when the captured rate is zero (would otherwise divide by zero downstream)", async () => {
+    const zeroRateSbiText = "EURO EUR/INR 0 107.99 105.22 108.19 105.22 108.19 103.7 108.6";
+    await expect(
+      fetchBankQuote(SBI_SOURCE, BENCHMARK_RATE, stubDeps(zeroRateSbiText))
+    ).rejects.toThrow();
+  });
 });
 
 describe("fetchBankQuote integrated with Task 2's computeQuoteCost", () => {

@@ -29,7 +29,7 @@ describe("computeQuoteCost", () => {
   it("excludes a quote when the amount is below the stated minimum", () => {
     const quote = { ...baseQuote, amount_tier: { min: 1000, max: null } };
     const result = computeQuoteCost(quote, 90, 999);
-    expect(result.excluded_reason).toBe("minimum transfer: 1000 EUR");
+    expect(result.excluded_reason).toBe("minimum transfer: 1000.00 EUR");
     expect(result.effective_rate).toBeNull();
     expect(result.amount_received).toBeNull();
   });
@@ -56,7 +56,7 @@ describe("computeQuoteCost", () => {
   it("excludes a quote when the amount exceeds the stated maximum", () => {
     const quote = { ...baseQuote, amount_tier: { min: 1, max: 1000 } };
     const result = computeQuoteCost(quote, 90, 1001);
-    expect(result.excluded_reason).toBe("maximum transfer: 1000 EUR");
+    expect(result.excluded_reason).toBe("maximum transfer: 1000.00 EUR");
     expect(result.effective_rate).toBeNull();
   });
 
@@ -64,6 +64,22 @@ describe("computeQuoteCost", () => {
     const quote = { ...baseQuote, amount_tier: { min: 1, max: 1000 } };
     const result = computeQuoteCost(quote, 90, 1000);
     expect(result.excluded_reason).toBeNull();
+  });
+
+  // Final review finding: real-world (non-round) amount_tier bounds, like
+  // those Task 3's PDF worker derives from a bank's own rate, must still
+  // show a properly rounded figure in the exclusion message (FR-8) — not
+  // the raw unrounded float.
+  it("rounds the minimum-transfer exclusion message to 2 decimal places (FR-8)", () => {
+    const quote = { ...baseQuote, amount_tier: { min: 9496.676163342831, max: null } };
+    const result = computeQuoteCost(quote, 90, 100);
+    expect(result.excluded_reason).toBe("minimum transfer: 9496.68 EUR");
+  });
+
+  it("rounds the maximum-transfer exclusion message to 2 decimal places (FR-8)", () => {
+    const quote = { ...baseQuote, amount_tier: { min: 1, max: 18993.35232668566 } };
+    const result = computeQuoteCost(quote, 90, 20000);
+    expect(result.excluded_reason).toBe("maximum transfer: 18993.35 EUR");
   });
 });
 
