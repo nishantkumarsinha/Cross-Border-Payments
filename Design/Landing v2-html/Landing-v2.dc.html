@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Send money to India, v2</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A1218}
+a{color:#B89B5E}a:hover{color:#D3B87C}
+.nav a{color:#E6DFCF;text-decoration:none}.nav a:hover{color:#FFFFFF}
+.foot a{color:#C9C4B6;text-decoration:none}.foot a:hover{color:#EDE8DC;text-decoration:underline}
+.chip:hover{border-color:#0A1218 !important}
+.tile:hover{border-color:#0A1218 !important}
+.route:hover{background:#D9D2BF !important}
+.cell:hover{border-color:#B89B5E !important}
+button,input,select{font-family:inherit}
+:focus-visible{outline:2px solid #B89B5E;outline-offset:3px}
+.arc{stroke-dasharray:1300;stroke-dashoffset:1300;animation:draw 2.4s cubic-bezier(.3,.1,.2,1) .2s forwards}
+.flow{animation:flow 5s linear infinite}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes flow{to{stroke-dashoffset:-130}}
+@media (prefers-reduced-motion:reduce){.arc{animation:none;stroke-dashoffset:0}.flow{animation:none}}
+</style>
+</helmet>
+
+<div style="background:#0A1218;color:#EDE8DC;font-family:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;min-width:0">
+
+  <!-- ============ HERO: sky, monuments, calculator ============ -->
+  <section style="background:linear-gradient(180deg,#0A1218 0%,#102632 40%,#2F5560 66%,#D9935B 100%)">
+    <div style="max-width:1160px;margin:0 auto;padding:0 32px;box-sizing:border-box">
+      <nav class="nav" style="display:flex;flex-wrap:wrap;gap:12px 32px;align-items:center;justify-content:space-between;padding:26px 0">
+        <span style="font-family:'Bodoni Moda',Georgia,serif;font-size:24px;font-weight:500;color:#FFFFFF">[Brand name]</span>
+        <span style="display:flex;flex-wrap:wrap;gap:8px 28px;font-size:15px">
+          <a href="#compare">Compare all</a>
+          <a href="#how">How it works</a>
+          <a href="#contact">Contact us</a>
+        </span>
+      </nav>
+
+      <div style="text-align:center;padding:44px 0 8px">
+        <h1 style="margin:0;font-family:'Bodoni Moda',Georgia,serif;font-weight:500;font-size:clamp(36px,5.4vw,66px);line-height:1.06;letter-spacing:-0.02em;color:#FFFFFF">Send money to India.<br>Keep more of it.</h1>
+        <p style="margin:18px auto 0;max-width:40ch;font-size:18px;color:#E6DFCF">Compare what actually arrives, after fees and rate markup.</p>
+      </div>
+    </div>
+
+    <!-- Europe to India scene -->
+    <svg aria-hidden="true" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax meet" style="display:block;width:100%;height:auto;margin-top:8px">
+      <defs>
+        <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFC27A" stop-opacity="0.6"></stop><stop offset="1" stop-color="#FFC27A" stop-opacity="0"></stop></radialGradient>
+        <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#244A56"></stop><stop offset="1" stop-color="#0A1218"></stop></linearGradient>
+      </defs>
+
+      <!-- sun behind the Taj -->
+      <circle cx="1190" cy="180" r="150" fill="url(#sunGlow)"></circle>
+      <circle cx="1190" cy="165" r="46" fill="#FFD7A0"></circle>
+
+      <!-- London: Elizabeth Tower and a slice of Westminster -->
+      <g fill="#0E1E27">
+        <rect x="72" y="124" width="36" height="126"></rect>
+        <rect x="67" y="100" width="46" height="26"></rect>
+        <polygon points="72,100 90,40 108,100"></polygon>
+        <rect x="89" y="28" width="2" height="14"></rect>
+        <rect x="112" y="214" width="62" height="36"></rect>
+        <polygon points="118,214 124,190 130,214"></polygon>
+        <polygon points="140,214 146,196 152,214"></polygon>
+        <polygon points="160,214 166,192 172,214"></polygon>
+      </g>
+      <circle cx="90" cy="113" r="6" fill="#F2C77A"></circle>
+
+      <!-- Paris: Eiffel Tower -->
+      <g fill="#0E1E27">
+        <polygon points="256,70 264,70 270,132 250,132"></polygon>
+        <rect x="259" y="36" width="2" height="36"></rect>
+        <rect x="246" y="128" width="28" height="5"></rect>
+        <polygon points="250,133 270,133 282,190 238,190"></polygon>
+        <rect x="231" y="190" width="58" height="6"></rect>
+        <path d="M226 250 L233 196 L287 196 L294 250 L282 250 Q260 218 238 250 Z"></path>
+      </g>
+      <g stroke="#2C4F5B" stroke-width="1">
+        <line x1="253" y1="140" x2="267" y2="184"></line><line x1="267" y1="140" x2="253" y2="184"></line>
+        <line x1="244" y1="200" x2="256" y2="240"></line><line x1="276" y1="200" x2="264" y2="240"></line>
+      </g>
+
+      <!-- Berlin: Brandenburg Gate -->
+      <g fill="#0E1E27">
+        <rect x="338" y="238" width="134" height="12"></rect>
+        <rect x="346" y="172" width="10" height="66"></rect><rect x="368" y="172" width="10" height="66"></rect><rect x="390" y="172" width="10" height="66"></rect>
+        <rect x="412" y="172" width="10" height="66"></rect><rect x="434" y="172" width="10" height="66"></rect><rect x="456" y="172" width="10" height="66"></rect>
+        <rect x="338" y="156" width="134" height="16"></rect>
+        <rect x="350" y="140" width="110" height="16"></rect>
+        <polygon points="378,140 384,126 426,126 432,140"></polygon>
+        <rect x="386" y="114" width="8" height="12"></rect><rect x="398" y="108" width="8" height="18"></rect><rect x="410" y="108" width="8" height="18"></rect><rect x="420" y="114" width="8" height="12"></rect>
+        <polygon points="403,86 407,86 411,108 399,108"></polygon>
+      </g>
+
+      <!-- Delhi: India Gate -->
+      <g fill="#0E1E27">
+        <rect x="958" y="242" width="84" height="8"></rect>
+        <rect x="964" y="234" width="72" height="8"></rect>
+        <path d="M972 234 V138 H1028 V234 H1012 V184 Q1000 158 988 184 V234 Z"></path>
+        <rect x="966" y="130" width="68" height="8"></rect>
+        <path d="M984 130 Q1000 108 1016 130 Z"></path>
+      </g>
+
+      <!-- Agra: Taj Mahal -->
+      <g fill="#0E1E27">
+        <rect x="1088" y="236" width="204" height="14"></rect>
+        <rect x="1148" y="170" width="84" height="66"></rect>
+        <path d="M1158 172 C1146 142 1168 122 1190 94 C1212 122 1234 142 1222 172 Z"></path>
+        <rect x="1189" y="76" width="2" height="20"></rect>
+        <path d="M1144 172 V160 Q1153 142 1162 160 V172 Z"></path>
+        <path d="M1218 172 V160 Q1227 142 1236 160 V172 Z"></path>
+        <rect x="1110" y="202" width="38" height="34"></rect>
+        <path d="M1116 202 Q1129 180 1142 202 Z"></path>
+        <rect x="1232" y="202" width="38" height="34"></rect>
+        <path d="M1238 202 Q1251 180 1264 202 Z"></path>
+        <rect x="1098" y="132" width="10" height="104"></rect>
+        <path d="M1095 132 Q1103 114 1111 132 Z"></path>
+        <rect x="1272" y="132" width="10" height="104"></rect>
+        <path d="M1269 132 Q1277 114 1285 132 Z"></path>
+      </g>
+      <path d="M1180 236 V198 Q1190 182 1200 198 V236 Z" fill="#19323D"></path>
+
+      <!-- Mumbai: Gateway of India -->
+      <g fill="#0E1E27">
+        <rect x="1318" y="244" width="86" height="6"></rect>
+        <path d="M1326 244 V150 H1394 V244 H1370 V190 Q1360 164 1350 190 V244 Z"></path>
+        <rect x="1326" y="132" width="12" height="18"></rect><path d="M1324 132 Q1332 116 1340 132 Z"></path>
+        <rect x="1382" y="132" width="12" height="18"></rect><path d="M1380 132 Q1388 116 1396 132 Z"></path>
+        <path d="M1346 150 Q1360 124 1374 150 Z"></path>
+      </g>
+
+      <!-- money in motion -->
+      <path d="M260 36 Q725 -40 1190 78" fill="none" stroke="#FFD7A0" stroke-opacity="0.45" stroke-width="1.5" class="arc"></path>
+      <path d="M260 36 Q725 -40 1190 78" fill="none" stroke="#FFE3B8" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 12" class="flow"></path>
+      <circle cx="260" cy="36" r="4" fill="#FFD7A0"></circle><circle cx="260" cy="36" r="11" fill="none" stroke="#FFD7A0" stroke-opacity="0.5"></circle>
+      <circle cx="1190" cy="78" r="4" fill="#FFD7A0"></circle><circle cx="1190" cy="78" r="11" fill="none" stroke="#FFD7A0" stroke-opacity="0.5"></circle>
+
+      <!-- water -->
+      <rect x="0" y="250" width="1440" height="50" fill="url(#water)"></rect>
+      <g stroke="#FFC27A" stroke-linecap="round" stroke-opacity="0.35" stroke-width="2">
+        <line x1="1130" y1="258" x2="1250" y2="258"></line><line x1="1150" y1="266" x2="1230" y2="266"></line><line x1="1165" y1="274" x2="1215" y2="274"></line>
+      </g>
+      <g stroke="#7FA9B5" stroke-linecap="round" stroke-opacity="0.18" stroke-width="2">
+        <line x1="210" y1="259" x2="310" y2="259"></line><line x1="230" y1="268" x2="290" y2="268"></line>
+      </g>
+      <g font-family="Hanken Grotesk, sans-serif" font-size="12" fill="#C9C4B6" text-anchor="middle">
+        <text x="90" y="288">London</text><text x="260" y="288">Paris</text><text x="405" y="288">Berlin</text>
+        <text x="1000" y="288">Delhi</text><text x="1190" y="288">Agra</text><text x="1360" y="288">Mumbai</text>
+      </g>
+    </svg>
+  </section>
+
+  <!-- ============ CALCULATOR CARD (sample + live) ============ -->
+  <section style="position:relative;z-index:2;margin-top:-56px">
+    <div style="max-width:1160px;margin:0 auto;padding:0 32px;box-sizing:border-box">
+      <div id="calc" style="background:#EDE8DC;color:#0A1218;border-radius:14px;padding:clamp(18px,3vw,32px);box-sizing:border-box;box-shadow:0 36px 90px rgba(0,0,0,0.5)">
+
+        <!-- three choices -->
+        <div style="display:flex;flex-wrap:wrap;gap:12px">
+          <sc-for list="{{tiles}}" as="t" hint-placeholder-count="3">
+            <button class="tile" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">
+              <span style="display:block;min-width:0">
+                <span style="display:block;font-size:13px;font-weight:600;color:#4A5660">{{t.label}}</span>
+                <span style="display:block;font-family:'Bodoni Moda',Georgia,serif;font-size:24px;font-weight:500;line-height:1.2;margin-top:2px">{{t.value}}</span>
+                <span style="display:block;font-size:12px;color:#4A5660;margin-top:2px">{{t.sub}}</span>
+              </span>
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#4A5660" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 7l5 5 5-5"></path></svg>
+            </button>
+          </sc-for>
+        </div>
+
+        <!-- options for the open choice -->
+        <div style="margin-top:12px;background:#E2DCCB;border-radius:10px;padding:16px 18px">
+          <sc-if value="{{isAmount}}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center">
+              <div style="display:flex;align-items:center;gap:8px;background:#FFFFFF;border:1px solid #A8A18E;border-radius:10px;padding:0 16px;flex:0 1 240px">
+                <span style="font-size:24px;font-weight:600;color:#4A5660">€</span>
+                <input type="text" inputmode="decimal" aria-label="Amount to send in euros" value="{{amountText}}" onChange="{{onAmount}}" style="flex:1;min-width:0;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;color:#0A1218;background:transparent;border:0;padding:10px 0;outline:none">
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{amountChips}}" as="o" hint-placeholder-count="5">
+                  <button class="chip" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="{{o.style}}">{{o.label}}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{isFrom}}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{senderChips}}" as="o" hint-placeholder-count="3">
+                <button class="chip" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="{{o.style}}">{{o.label}}</button>
+              </sc-for>
+              <select aria-label="More sending options" value="{{senderMore}}" onChange="{{onSenderMore}}" style="{{senderMoreStyle}}">
+                <option value="">More senders</option>
+                <sc-for list="{{senderMoreOpts}}" as="o" hint-placeholder-count="3">
+                  <option value="{{o.value}}">{{o.label}}</option>
+                </sc-for>
+              </select>
+            </div>
+          </sc-if>
+          <sc-if value="{{isTo}}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{receiverChips}}" as="o" hint-placeholder-count="3">
+                <button class="chip" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="{{o.style}}">{{o.label}}</button>
+              </sc-for>
+              <select aria-label="More receiving banks" value="{{receiverMore}}" onChange="{{onReceiverMore}}" style="{{receiverMoreStyle}}">
+                <option value="">More banks</option>
+                <sc-for list="{{receiverMoreOpts}}" as="o" hint-placeholder-count="2">
+                  <option value="{{o.value}}">{{o.label}}</option>
+                </sc-for>
+              </select>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- results -->
+        <div style="display:flex;flex-wrap:wrap;gap:32px 44px;align-items:flex-start;margin-top:28px">
+          <div style="flex:1 1 320px;min-width:0">
+            <div style="font-size:14px;color:#4A5660">The right route saves you</div>
+            <div style="font-family:'Bodoni Moda',Georgia,serif;font-weight:500;font-size:clamp(44px,6vw,68px);line-height:1.04;letter-spacing:-0.02em;color:#1B6F5A">{{saveTxt}}</div>
+            <div style="font-size:15px;color:#2B3944">on {{amtTxt}} sent to {{recvName}}, best route against the worst.</div>
+
+            <div style="margin-top:22px;padding-top:16px;border-top:1px solid #0A1218">
+              <div style="font-weight:600">What {{pickName}} costs you</div>
+              <div style="font-size:14px;color:#2B3944;margin-top:2px">{{pickMsg}}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:12px">
+                <div><div style="font-size:13px;color:#4A5660">Fee</div><div style="font-weight:600;font-variant-numeric:tabular-nums">{{pickFee}}</div></div>
+                <div><div style="font-size:13px;color:#4A5660">Rate markup</div><div style="font-weight:600;font-variant-numeric:tabular-nums">{{pickMarkup}}</div></div>
+                <div><div style="font-size:13px;color:#4A5660">Bank charge</div><div style="font-weight:600;font-variant-numeric:tabular-nums">{{pickBank}}</div></div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:14px">
+                <div><div style="font-size:13px;color:#4A5660">They receive</div><div style="font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:#1B6F5A">{{pickGet}}</div></div>
+                <div><div style="font-size:13px;color:#4A5660">Below the Google / XE rate</div><div style="font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:#A33A2B">{{pickGap}}</div></div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;font-size:14px;color:#4A5660">Google / XE rate today: 1 EUR = {{rateTxt}}</div>
+          </div>
+
+          <div style="flex:1.5 1 440px;min-width:0">
+            <div style="padding:10px 12px;border:2px dashed #8F8A7B;border-radius:8px;margin-bottom:8px;background:#F4F0E4">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                <span><span style="font-weight:600">Google / XE rate</span> <span style="font-size:12px;color:#4A5660">reference</span></span>
+                <span style="font-weight:600;font-variant-numeric:tabular-nums">{{googleTxt}}</span>
+              </div>
+              <div style="margin-top:7px;height:7px;background:#CFC8B5;border-radius:4px"><div style="height:7px;width:100%;border-radius:4px;background:#5A6670"></div></div>
+              <div style="margin-top:4px;font-size:12px;color:#4A5660">What a search shows. No sender offers this rate.</div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <sc-for list="{{routes}}" as="r" hint-placeholder-count="6">
+                <button class="route" onClick="{{r.pick}}" aria-pressed="{{r.pressed}}" style="{{r.style}}">
+                  <span style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                    <span><span style="font-weight:600">{{r.name}}</span> <span style="font-size:12px;color:#4A5660">{{r.tag}}</span><sc-if value="{{r.isBest}}" hint-placeholder-val="{{ false }}"> <span style="display:inline-block;font-size:11px;font-weight:600;background:#1B6F5A;color:#FFFFFF;border-radius:999px;padding:2px 8px;margin-left:4px">Best</span></sc-if></span>
+                    <span style="font-weight:600;font-variant-numeric:tabular-nums">{{r.get}}</span>
+                  </span>
+                  <span style="display:block;margin-top:7px;height:7px;background:#CFC8B5;border-radius:4px"><span style="{{r.barStyle}}"></span></span>
+                  <span style="display:flex;justify-content:space-between;gap:12px;margin-top:4px;font-size:12px;color:#4A5660"><span>{{r.kind}}</span><span>{{r.delta}}</span></span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;font-size:13px;color:#4A5660">* Sample figures for illustration. Names tagged placeholder are stand-ins.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARE ALL ============ -->
+  <section id="compare" style="padding:96px 0 40px">
+    <div style="max-width:1160px;margin:0 auto;padding:0 32px;box-sizing:border-box">
+      <h2 style="margin:0;font-family:'Bodoni Moda',Georgia,serif;font-weight:500;font-size:clamp(28px,3.6vw,40px);line-height:1.1;letter-spacing:-0.015em">Every pairing at {{amtTxt}}</h2>
+      <p style="margin:10px 0 28px;color:#C9C4B6">Tap any cell to load it above.</p>
+      <div style="overflow-x:auto">
+        <div style="min-width:780px;display:grid;grid-template-columns:210px repeat(5,minmax(0,1fr));gap:8px;align-items:stretch">
+          <sc-for list="{{matrix}}" as="c" hint-placeholder-count="42">
+            <sc-if value="{{c.isBlank}}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+            <sc-if value="{{c.isSpan}}" hint-placeholder-val="{{ false }}"><div style="grid-column:2 / -1;text-align:center;font-size:14px;font-weight:600;color:#EDE8DC;border-bottom:1px solid #3B4A54;padding-bottom:6px">Arriving at</div></sc-if>
+            <sc-if value="{{c.isCorner}}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:flex-end;font-size:14px;font-weight:600;color:#EDE8DC;padding:0 8px 8px">Sending from</div></sc-if>
+            <sc-if value="{{c.isColHead}}" hint-placeholder-val="{{ false }}"><div style="padding:0 6px 8px;font-size:14px;color:#EDE8DC;text-align:center;display:flex;flex-direction:column;justify-content:flex-end"><span>{{c.label}}</span><span style="font-size:12px;color:#8FA0AA">{{c.tag}}</span></div></sc-if>
+            <sc-if value="{{c.isRowHead}}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;justify-content:center;padding:0 8px;font-size:15px;font-weight:600"><span>{{c.label}}</span><span style="font-size:12px;font-weight:400;color:#8FA0AA">{{c.tag}}</span></div></sc-if>
+            <sc-if value="{{c.isCell}}" hint-placeholder-val="{{ true }}"><button class="cell" onClick="{{c.pick}}" aria-label="{{c.aria}}" style="{{c.style}}">{{c.label}}</button></sc-if>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:18px;max-width:420px;font-size:13px;color:#C9C4B6">
+        <span>Less arrives</span>
+        <span style="flex:1;height:10px;border-radius:5px;background:linear-gradient(90deg,rgba(181,72,58,0.75),rgba(217,164,65,0.75),rgba(63,163,127,0.75))"></span>
+        <span>More arrives</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" style="padding:80px 0 96px">
+    <div style="max-width:1160px;margin:0 auto;padding:0 32px;box-sizing:border-box">
+      <h2 style="margin:0;font-family:'Bodoni Moda',Georgia,serif;font-weight:500;font-size:clamp(28px,3.6vw,40px);line-height:1.1;letter-spacing:-0.015em">How it works</h2>
+      <p style="margin:10px 0 0;color:#C9C4B6">Live rates, compared every day. Last updated [date, time IST].</p>
+      <div style="display:flex;flex-wrap:wrap;gap:40px;margin-top:40px">
+        <div style="flex:1 1 240px;border-top:1px solid #B89B5E;padding-top:18px">
+          <div style="font-family:'Bodoni Moda',Georgia,serif;font-size:40px;line-height:1;color:#B89B5E">1</div>
+          <h3 style="margin:12px 0 4px;font-size:19px;font-weight:600">Live rate</h3>
+          <p style="margin:0;color:#C9C4B6">Today's Google / XE EUR to INR rate.</p>
+        </div>
+        <div style="flex:1 1 240px;border-top:1px solid #B89B5E;padding-top:18px">
+          <div style="font-family:'Bodoni Moda',Georgia,serif;font-size:40px;line-height:1;color:#B89B5E">2</div>
+          <h3 style="margin:12px 0 4px;font-size:19px;font-weight:600">Real costs</h3>
+          <p style="margin:0;color:#C9C4B6">Each route's published fees and rate markup.</p>
+        </div>
+        <div style="flex:1 1 240px;border-top:1px solid #B89B5E;padding-top:18px">
+          <div style="font-family:'Bodoni Moda',Georgia,serif;font-size:40px;line-height:1;color:#B89B5E">3</div>
+          <h3 style="margin:12px 0 4px;font-size:19px;font-weight:600">Best today</h3>
+          <p style="margin:0;color:#C9C4B6">Routes ranked by what arrives.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer id="contact" class="foot" style="background:#071015;border-top:1px solid #24333D;padding:56px 0 32px">
+    <div style="max-width:1160px;margin:0 auto;padding:0 32px;box-sizing:border-box">
+      <div style="display:flex;flex-wrap:wrap;gap:40px">
+        <div style="flex:1.4 1 260px">
+          <div style="font-family:'Bodoni Moda',Georgia,serif;font-size:24px;font-weight:500;color:#EDE8DC">[Brand name]</div>
+          <p style="margin:10px 0 0;max-width:30ch;color:#8FA0AA;font-size:15px">Compare what actually arrives when you send euros to India.</p>
+        </div>
+        <div style="flex:1 1 160px">
+          <div style="font-weight:600;margin-bottom:12px">About us</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+            <a href="#how">How it works</a>
+            <a href="#">Our story</a>
+            <a href="#">Sources</a>
+          </div>
+        </div>
+        <div style="flex:1 1 200px">
+          <div style="font-weight:600;margin-bottom:12px">Contact us</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:15px;color:#C9C4B6">
+            <span>[hello@yourdomain.com]</span>
+            <span>[Mon to Fri, 9am to 6pm IST]</span>
+            <span>[Office address]</span>
+          </div>
+        </div>
+        <div style="flex:1 1 160px">
+          <div style="font-weight:600;margin-bottom:12px">Legal</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+            <a href="#">Privacy policy</a>
+            <a href="#">Terms of use</a>
+            <a href="#">Disclaimer</a>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:40px;padding-top:20px;border-top:1px solid #24333D;display:flex;flex-wrap:wrap;gap:8px 32px;justify-content:space-between;font-size:13px;color:#8FA0AA">
+        <span>© [Year] [Brand name]</span>
+        <span>For comparison only. Not financial advice.</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":2750}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { amount: 5000, amountText: '5,000', sender: 0, receiver: 1, active: 'amount' };
+  }
+
+  renderVals() {
+    const RATE = 104.5; /* Google / XE rate, sample value */
+    /* Sample data. Names tagged placeholder stand in for the real list. */
+    const senders = [
+      { name: 'Wise', tag: '', kind: 'App', wire: false, bps: 0, fee: (a) => a * 0.0045 },
+      { name: 'Revolut', tag: '', kind: 'App', wire: false, bps: 20, fee: () => 0 },
+      { name: 'Freelance Remit App', tag: 'placeholder', kind: 'App', wire: false, bps: 0, fee: (a) => a * (a <= 500 ? 0.01 : a <= 2000 ? 0.005 : 0.003) },
+      { name: 'German bank A', tag: 'placeholder', kind: 'Bank wire', wire: true, fee: () => 25 },
+      { name: 'German bank B', tag: 'placeholder', kind: 'Bank wire', wire: true, fee: () => 35 },
+      { name: 'German bank C', tag: 'placeholder', kind: 'Bank wire', wire: true, fee: () => 45 }
+    ];
+    const receivers = [
+      { name: 'SBI', tag: '', bps: 150, inward: 59 },
+      { name: 'HDFC Bank', tag: '', bps: 120, inward: 0 },
+      { name: 'IDFC First Bank', tag: '', bps: 110, inward: 0 },
+      { name: 'Indian bank D', tag: 'placeholder', bps: 130, inward: 0 },
+      { name: 'Indian bank E', tag: 'placeholder', bps: 160, inward: 100 }
+    ];
+    const POP = 3;
+    const full = (x) => x.name + (x.tag ? ' (' + x.tag + ')' : '');
+    const eur0 = (n) => '€' + Math.round(n).toLocaleString('en-US');
+    const eur2 = (n) => '€' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const inr0 = (n) => '₹' + Math.round(Math.abs(n)).toLocaleString('en-IN');
+
+    const calc = (s, r, amount) => {
+      const fee = s.fee(amount);
+      const net = amount - fee;
+      const bps = s.wire ? r.bps : s.bps;
+      const eff = RATE * (1 - bps / 10000);
+      const inward = s.wire ? r.inward : 0;
+      const out = net * eff - inward;
+      return { fee, markup: net * RATE - net * eff, inward, out };
+    };
+    const heat = (t) => {
+      const stops = [[181, 72, 58], [217, 164, 65], [63, 163, 127]];
+      const k = t < 0.5 ? 0 : 1;
+      const u = t < 0.5 ? t / 0.5 : (t - 0.5) / 0.5;
+      const a = stops[k], b = stops[k + 1];
+      return [0, 1, 2].map((i) => Math.round(a[i] + (b[i] - a[i]) * u));
+    };
+
+    const st = this.state;
+    const amt = st.amount;
+    const S = senders[st.sender];
+    const R = receivers[st.receiver];
+    const google = amt * RATE;
+
+    /* ---- the three choices ---- */
+    const tileStyle = (on) =>
+      'flex:1 1 220px;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;cursor:pointer;color:#0A1218;padding:14px 18px;border-radius:12px;' +
+      (on ? 'background:#FFFFFF;border:2px solid #0A1218;' : 'background:transparent;border:2px solid #8F8A7B;');
+    const tiles = [
+      { label: 'You send', value: eur0(amt), sub: 'Euros', key: 'amount' },
+      { label: 'Sending from', value: S.name, sub: S.tag ? 'placeholder' : S.kind, key: 'from' },
+      { label: 'Arriving at', value: R.name, sub: R.tag ? 'placeholder' : 'Bank in India', key: 'to' }
+    ].map((t) => ({
+      label: t.label,
+      value: t.value,
+      sub: t.sub,
+      pressed: st.active === t.key ? 'true' : 'false',
+      style: tileStyle(st.active === t.key),
+      pick: () => this.setState({ active: t.key })
+    }));
+
+    /* ---- options ---- */
+    const chipStyle = (on) =>
+      'min-height:44px;padding:0 16px;border-radius:999px;cursor:pointer;font-size:15px;font-weight:500;' +
+      (on ? 'background:#0A1218;color:#EDE8DC;border:1px solid #0A1218;'
+          : 'background:transparent;color:#0A1218;border:1px solid #8F8A7B;');
+    const amountChips = [1000, 2500, 5000, 10000, 25000].map((v) => ({
+      label: eur0(v),
+      pressed: amt === v ? 'true' : 'false',
+      style: chipStyle(amt === v),
+      pick: () => this.setState({ amount: v, amountText: v.toLocaleString('en-US') })
+    }));
+    const senderChips = senders.slice(0, POP).map((s, i) => ({
+      label: full(s),
+      pressed: st.sender === i ? 'true' : 'false',
+      style: chipStyle(st.sender === i),
+      pick: () => this.setState({ sender: i })
+    }));
+    const receiverChips = receivers.slice(0, POP).map((r, i) => ({
+      label: full(r),
+      pressed: st.receiver === i ? 'true' : 'false',
+      style: chipStyle(st.receiver === i),
+      pick: () => this.setState({ receiver: i })
+    }));
+    const senderMoreOpts = senders.slice(POP).map((s, k) => ({ value: String(POP + k), label: full(s) }));
+    const receiverMoreOpts = receivers.slice(POP).map((r, k) => ({ value: String(POP + k), label: full(r) }));
+
+    const onAmount = (e) => {
+      const raw = e.target.value;
+      const v = parseFloat(String(raw).replace(/[^0-9.]/g, ''));
+      this.setState(v > 0 ? { amount: v, amountText: raw } : { amountText: raw });
+    };
+    const onSenderMore = (e) => { if (e.target.value !== '') this.setState({ sender: parseInt(e.target.value, 10) }); };
+    const onReceiverMore = (e) => { if (e.target.value !== '') this.setState({ receiver: parseInt(e.target.value, 10) }); };
+
+    /* ---- ranked routes for the chosen receiver ---- */
+    const rows = senders
+      .map((s, i) => ({ s, i, c: calc(s, R, amt) }))
+      .sort((a, b) => b.c.out - a.c.out);
+    const maxV = rows[0].c.out;
+    const minV = rows[rows.length - 1].c.out;
+    const span = maxV - minV;
+    const routes = rows.map((row, rank) => {
+      const t = span === 0 ? 1 : (row.c.out - minV) / span;
+      const col = heat(t);
+      const w = (28 + 72 * t).toFixed(1);
+      const sel = row.i === st.sender;
+      return {
+        name: row.s.name,
+        tag: row.s.tag,
+        kind: row.s.kind,
+        isBest: rank === 0,
+        get: inr0(row.c.out),
+        delta: '−' + inr0(google - row.c.out) + ' vs Google / XE rate',
+        pressed: sel ? 'true' : 'false',
+        barStyle: 'display:block;height:7px;border-radius:4px;width:' + w + '%;background:rgb(' + col.join(',') + ')',
+        style: 'display:block;width:100%;text-align:left;cursor:pointer;color:#0A1218;font-size:16px;padding:10px 12px;border-radius:8px;' +
+          (sel ? 'background:#F4F0E4;border:2px solid #0A1218;' : 'background:transparent;border:2px solid transparent;'),
+        pick: () => this.setState({ sender: row.i })
+      };
+    });
+
+    /* ---- the user's pick ---- */
+    const pick = calc(S, R, amt);
+    const gapToBest = maxV - pick.out;
+    const pickMsg = gapToBest < 0.5 ? 'Best route for this amount.' : 'The best route gives ' + inr0(gapToBest) + ' more.';
+    const gapGoogle = google - pick.out;
+
+    /* ---- pairing matrix ---- */
+    const all = [];
+    senders.forEach((s) => receivers.forEach((r) => all.push(calc(s, r, amt).out)));
+    const lo = Math.min.apply(null, all);
+    const hi = Math.max.apply(null, all);
+    const matrix = [{ isBlank: true }, { isSpan: true }, { isCorner: true }];
+    receivers.forEach((r) => matrix.push({ isColHead: true, label: r.name, tag: r.tag }));
+    senders.forEach((s, si) => {
+      matrix.push({ isRowHead: true, label: s.name, tag: s.tag });
+      receivers.forEach((r, ri) => {
+        const v = calc(s, r, amt).out;
+        const t = hi === lo ? 1 : (v - lo) / (hi - lo);
+        const col = heat(t);
+        const sel = si === st.sender && ri === st.receiver;
+        matrix.push({
+          isCell: true,
+          label: inr0(v),
+          aria: full(s) + ' to ' + full(r) + ': ' + inr0(v),
+          style: 'min-height:56px;border-radius:8px;cursor:pointer;font-size:15px;color:#FFFFFF;font-variant-numeric:tabular-nums;font-weight:' + (sel ? 700 : 500) + ';' +
+            'background:rgba(' + col.join(',') + ',0.55);border:2px solid ' + (sel ? '#EDE8DC' : 'transparent') + ';',
+          pick: () => {
+            this.setState({ sender: si, receiver: ri });
+            try { document.getElementById('calc').scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) {}
+          }
+        });
+      });
+    });
+
+    return {
+      tiles,
+      isAmount: st.active === 'amount',
+      isFrom: st.active === 'from',
+      isTo: st.active === 'to',
+      amountText: st.amountText,
+      onAmount,
+      amountChips,
+      senderChips,
+      receiverChips,
+      senderMore: st.sender >= POP ? String(st.sender) : '',
+      receiverMore: st.receiver >= POP ? String(st.receiver) : '',
+      senderMoreOpts,
+      receiverMoreOpts,
+      onSenderMore,
+      onReceiverMore,
+      senderMoreStyle: chipStyle(st.sender >= POP) + 'font-family:inherit;',
+      receiverMoreStyle: chipStyle(st.receiver >= POP) + 'font-family:inherit;',
+      rateTxt: '₹' + RATE.toFixed(2) + ' *',
+      googleTxt: inr0(google),
+      saveTxt: inr0(span),
+      amtTxt: eur0(amt),
+      recvName: full(R),
+      routes,
+      pickName: full(S),
+      pickMsg,
+      pickFee: eur2(pick.fee),
+      pickMarkup: inr0(pick.markup),
+      pickBank: pick.inward > 0 ? inr0(pick.inward) : '₹0',
+      pickGet: inr0(pick.out),
+      pickGap: '−' + inr0(gapGoogle) + ' (' + ((gapGoogle / google) * 100).toFixed(2) + '%)',
+      matrix
+    };
+  }
+}
+</script>
+</body>
+</html>
