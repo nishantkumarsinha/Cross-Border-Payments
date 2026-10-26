@@ -1,15 +1,20 @@
+import path from "path";
 import { getBenchmarkRate } from "@/lib/benchmarkRate";
 import { getAllProviderQuotes } from "@/lib/providerQuotes";
-import type { QuoteCacheMap } from "@/lib/providerQuotes";
+import type { QuoteCacheEntry } from "@/lib/providerQuotes";
 import { httpFetchPdf, extractPdfText } from "@/lib/pdfRateWorker";
 import { computeQuoteCost, formatDisplayAmount } from "@/lib/costEngine";
-import type { BenchmarkCache } from "@/lib/types";
+import type { BenchmarkCacheEntry } from "@/lib/types";
+import { openKvDb } from "@/lib/sqliteKv";
+import { createSqliteCacheStore } from "@/lib/cacheStore";
 
 // Module-level singletons: persist across requests within the same server
-// process (not per-request), same pattern Task 1/3's own cache design
-// assumed a long-lived caller would provide.
-const benchmarkCache: BenchmarkCache = new Map();
-const quoteCache: QuoteCacheMap = new Map();
+// process, and now also across a process restart — backed by a SQLite file
+// at data/cache.sqlite rather than an in-memory Map that resets to empty
+// every time the server starts.
+const db = openKvDb(path.join(process.cwd(), "data", "cache.sqlite"));
+const benchmarkCache = createSqliteCacheStore<BenchmarkCacheEntry>(db, "benchmark");
+const quoteCache = createSqliteCacheStore<QuoteCacheEntry>(db, "quote");
 
 const BENCHMARK_CACHE_TTL_MS = 5 * 60 * 1000; // matches the plan's Task 1 constant
 const QUOTE_CACHE_TTL_MS = 10 * 60 * 1000; // PDFs change at most daily; 10 min just avoids hammering on every request
