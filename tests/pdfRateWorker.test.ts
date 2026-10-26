@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import { fetchBankQuote, HDFC_SOURCE, SBI_SOURCE } from "../lib/pdfRateWorker";
 import { computeQuoteCost } from "../lib/costEngine";
 

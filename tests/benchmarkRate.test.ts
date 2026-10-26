@@ -1,4 +1,3 @@
-import { describe, it, expect, vi } from "vitest";
 import { getBenchmarkRate } from "../lib/benchmarkRate";
 import type { BenchmarkCache, FetchLike } from "../lib/types";
 
@@ -12,7 +11,7 @@ describe("getBenchmarkRate", () => {
     const cache: BenchmarkCache = new Map([
       ["EUR:INR", { rate: 106.864, asOf: "2026-10-16", fetchedAtMs: 1000 }],
     ]);
-    const fetchFn = vi.fn<FetchLike>();
+    const fetchFn = jest.fn<ReturnType<FetchLike>, Parameters<FetchLike>>();
     const result = await getBenchmarkRate("EUR", "INR", cache, {
       fetchFn, nowMs: () => 1000 + 60_000, cacheTtlMs: 300_000,
     });
@@ -24,7 +23,7 @@ describe("getBenchmarkRate", () => {
     const cache: BenchmarkCache = new Map([
       ["EUR:INR", { rate: 100, asOf: "2026-10-15", fetchedAtMs: 0 }],
     ]);
-    const fetchFn = vi.fn<FetchLike>(async () => okResponse(107.5, "2026-10-16"));
+    const fetchFn = jest.fn<ReturnType<FetchLike>, Parameters<FetchLike>>(async () => okResponse(107.5, "2026-10-16"));
     const result = await getBenchmarkRate("EUR", "INR", cache, {
       fetchFn, nowMs: () => 300_000, cacheTtlMs: 300_000,
     });
@@ -36,7 +35,7 @@ describe("getBenchmarkRate", () => {
     const cache: BenchmarkCache = new Map([
       ["EUR:INR", { rate: 100, asOf: "2026-10-15", fetchedAtMs: 0 }],
     ]);
-    const fetchFn = vi.fn<FetchLike>(async () => okResponse(107.5, "2026-10-16"));
+    const fetchFn = jest.fn<ReturnType<FetchLike>, Parameters<FetchLike>>(async () => okResponse(107.5, "2026-10-16"));
     await getBenchmarkRate("EUR", "INR", cache, { fetchFn, nowMs: () => 300_000, cacheTtlMs: 300_000 });
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
@@ -45,7 +44,7 @@ describe("getBenchmarkRate", () => {
     const cache: BenchmarkCache = new Map([
       ["EUR:INR", { rate: 100, asOf: "2026-10-15", fetchedAtMs: 0 }],
     ]);
-    const fetchFn = vi.fn<FetchLike>(async () => { throw new Error("network down"); });
+    const fetchFn = jest.fn<ReturnType<FetchLike>, Parameters<FetchLike>>(async () => { throw new Error("network down"); });
     const result = await getBenchmarkRate("EUR", "INR", cache, {
       fetchFn, nowMs: () => 999_999_999, cacheTtlMs: 300_000,
     });
@@ -54,7 +53,7 @@ describe("getBenchmarkRate", () => {
 
   it("throws when the fetch fails and there is no cached entry to fall back to", async () => {
     const cache: BenchmarkCache = new Map();
-    const fetchFn = vi.fn<FetchLike>(async () => ({ ok: false, json: async () => ({}) }));
+    const fetchFn = jest.fn<ReturnType<FetchLike>, Parameters<FetchLike>>(async () => ({ ok: false, json: async () => ({}) }));
     await expect(
       getBenchmarkRate("EUR", "INR", cache, { fetchFn, nowMs: () => 0, cacheTtlMs: 300_000 })
     ).rejects.toThrow();
@@ -64,7 +63,7 @@ describe("getBenchmarkRate", () => {
     const cache: BenchmarkCache = new Map([
       ["EUR:INR", { rate: 100, asOf: "2026-10-15", fetchedAtMs: 0 }],
     ]);
-    const fetchFn = vi.fn<FetchLike>(async () => ({ ok: true, json: async () => ({ rates: {} }) }));
+    const fetchFn = jest.fn<ReturnType<FetchLike>, Parameters<FetchLike>>(async () => ({ ok: true, json: async () => ({ rates: {} }) }));
     const result = await getBenchmarkRate("EUR", "INR", cache, {
       fetchFn, nowMs: () => 999_999_999, cacheTtlMs: 300_000,
     });
