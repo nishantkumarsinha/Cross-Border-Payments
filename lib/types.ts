@@ -1,10 +1,12 @@
+import type { CacheStore } from "./cacheStore";
+
 export interface BenchmarkCacheEntry {
   rate: number;
   asOf: string;
   fetchedAtMs: number;
 }
 
-export type BenchmarkCache = Map<string, BenchmarkCacheEntry>;
+export type BenchmarkCache = CacheStore<BenchmarkCacheEntry>;
 
 export interface BenchmarkRateResult {
   rate: number;

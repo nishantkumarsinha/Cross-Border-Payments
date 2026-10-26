@@ -1,13 +1,14 @@
 import { fetchBankQuote, HDFC_SOURCE, SBI_SOURCE } from "./pdfRateWorker";
 import type { PdfFetchLike, PdfSource, PdfTextExtractor } from "./pdfRateWorker";
 import type { Quote } from "./types";
+import type { CacheStore } from "./cacheStore";
 
 export interface QuoteCacheEntry {
   quote: Quote;
   fetchedAtMs: number;
 }
 
-export type QuoteCacheMap = Map<string, QuoteCacheEntry>;
+export type QuoteCacheMap = CacheStore<QuoteCacheEntry>;
 
 export interface ProviderQuoteFailure {
   bankId: string;
